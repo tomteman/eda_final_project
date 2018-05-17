@@ -31,7 +31,7 @@ bike_train$hour=substr(bike_train$datetime,12,13)
 bike_train$hour=as.factor(bike_train$hour)
 
 # boxplot relation between hour and count of rentals
-boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals")
+boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))))
 
 library(ggplot2)
 
