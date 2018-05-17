@@ -33,5 +33,15 @@ bike_train$hour=as.factor(bike_train$hour)
 # boxplot relation between hour and count of rentals
 boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals")
 
+library(ggplot2)
 
+ggplot(data = bike_train, aes(temp,count)) + geom_point(alpha = 0.3, aes(color = temp)) + theme_bw()
+
+bike_train$datetime <- as.POSIXct(bike_train$datetime)
+pl <- ggplot(bike_train,aes(datetime,count)) + geom_point(aes(color=temp),alpha=0.5)
+pl + scale_color_continuous(low = '#55D8CE',high = '#FF6E2E') + theme_bw()
+
+cor(bike_train[,c('temp','count')])
+
+ggplot(bike_train,aes(factor(season),count)) + geom_boxplot(aes(color = factor(season))) + theme_bw()
 
