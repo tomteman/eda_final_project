@@ -6,7 +6,7 @@ getwd()
 bike_train <- read.csv("bike_train.csv", sep = ",")
 
 # format datetime column
-bike_train$datetime <- as.POSIXct(bike_train$datetime, tz = "", format = "%Y-%m-%d%H:%M:%S")
+bike_train$datetime <- as.POSIXct(bike_train$datetime, tz = "UTC", format = "%Y-%m-%d%H:%M:%S")
 
 # initial histograms for overview of data
 par(mfrow=c(4,2));
@@ -31,15 +31,54 @@ bike_train$hour=substr(bike_train$datetime,12,13)
 bike_train$hour=as.factor(bike_train$hour)
 
 # boxplot relation between hour and count of rentals
-boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))))
+boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# create factored day column from datetime
+install.packages("lubridate", dependencies = TRUE)
+library(lubridate)
+bike_train$day=wday(as.Date(bike_train$datetime,"%Y-%m-%d%H:%M:%S"), label=TRUE, locale=)
+boxplot(bike_train$count~bike_train$day,xlab="day", ylab="count of rentals", col=rainbow(length(unique(bike_train$day))),outline=FALSE)
+
+par(mfrow=c(2,1));
+# boxplot relation between hour and count of rentals in workdays
+bike_train_filtered = bike_train[bike_train$workingday == 1, ];
+boxplot(main="Relation between hour and count of rentals in workdays", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in non-workdays
+bike_train_filtered = bike_train[bike_train$workingday == 0, ];
+boxplot(main="Relation between hour and count of rentals in non-workdays", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+par(mfrow=c(2,2));
+# boxplot relation between hour and count of rentals in winter
+bike_train_filtered = bike_train[bike_train$season == 1, ];
+boxplot(main="Relation between hour and count of rentals in winter", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in spring
+bike_train_filtered = bike_train[bike_train$season == 2, ];
+boxplot(main="Relation between hour and count of rentals in spring", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in summer
+bike_train_filtered = bike_train[bike_train$season == 3 ];
+boxplot(main="Relation between hour and count of rentals in summer", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in fall
+bike_train_filtered = bike_train[bike_train$season == 4, ];
+boxplot(main="Relation between hour and count of rentals in fall", bike_train_filtered$count~bike_train_filtered$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in non-workdays
+boxplot(bike_train$count~bike_train$hour,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour))),outline=FALSE)
+
+
+
 
 library(ggplot2)
 
 ggplot(data = bike_train, aes(temp,count)) + geom_point(alpha = 0.3, aes(color = temp)) + theme_bw()
 
+# plot relation between count and date, with points colored according to temp
 bike_train$datetime <- as.POSIXct(bike_train$datetime)
 pl <- ggplot(bike_train,aes(datetime,count)) + geom_point(aes(color=temp),alpha=0.5)
-pl + scale_color_continuous(low = '#55D8CE',high = '#FF6E2E') + theme_bw()
+pl + ggtitle("Relation between count and date, with points colored according to temperature") + scale_color_continuous(low = '#55D8CE',high = '#FF6E2E') + theme_bw()
 
 cor(bike_train[,c('temp','count')])
 
