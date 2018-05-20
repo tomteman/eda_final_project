@@ -27,7 +27,7 @@ hist(bike_train$workingday);
 bike_train$season <- factor(bike_train$season, labels = c("Winter", "Spring", "Summer", "Fall"))
 bike_train$holidy <- factor(bike_train$holiday, labels = c("Not_Holiday", "Holiday"))
 bike_train$workingday <- factor(bike_train$workingday, labels = c("Not_Working_Day", "Working_Day"))
-bike_train$weather <- factor(bike_train$weather, labels = c("Good", "Normal", "Bad", "Very Bad"))
+#bike_train$weather <- factor(bike_train$weather, labels = c("Good", "Normal", "Bad", "Very Bad"))
 
 # split up datetime into components
 bike_train$month <- as.integer(format(as.POSIXlt(bike_train$datetime), format = "%m"))
@@ -121,4 +121,19 @@ subset_train$hour_window=relevel(subset_train$hour_window, "midday")
 subset_train_lm <- lm(data = subset_train, count ~ temp + hour_window)
 summary(subset_train_lm)
 
+subset_train_lm2 <- lm(data = subset_train, count ~ temp + hour_window + temp*hour_window)
+summary(subset_train_lm2)
+
+
+# SECTION C
+subset_train$agg_temp = NA
+subset_train$windchill = NA
+subset_train$agg_humidity = NA
+subset_train$agg_climate = NA
+subset_train$agg_temp = (subset_train$temp + subset_train$atemp) / 2
+subset_train$windchill = (10*sqrt(subset_train$windspeed) - subset_train$windspeed + 10.5)*(33-subset_train$agg_temp)
+subset_train$agg_humidity = ifelse(subset_train$season == "Summer", subset_train$humidity*subset_train$humidity, subset_train$humidity)
+subset_train$agg_climate = subset_train$weather * (subset_train$agg_temp + subset_train$windchill + subset_train$agg_humidity)
+
+#subset_train_lm2 <- lm(data = subset_train, count ~ temp + hour_window + temp*hour_window)
 
