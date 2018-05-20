@@ -84,3 +84,19 @@ cor(bike_train[,c('temp','count')])
 
 ggplot(bike_train,aes(factor(season),count)) + geom_boxplot(aes(color = factor(season))) + theme_bw()
 
+
+
+bikes_train_lm <- lm(data = bike_train, count ~ temp, xlab="Temperature", ylab="Count")
+summary(bikes_train_lm)
+plot(bike_train$temp, bike_train$count, pch = 20, cex = .5, col = "blue", main = "Count plotted against temperature", xlab = "Temperature", ylab = "Count")
+abline(lm(data = bike_train, count ~ temp))
+
+
+## 70% of the sample size
+smp_size <- floor(0.7 * nrow(bike_train))
+set.seed(4242)
+train_ind <- sample(seq_len(nrow(bike_train)), size = smp_size)
+
+subset_train <- bike_train[train_ind, ]
+subset_test <- bike_train[-train_ind, ]
+
