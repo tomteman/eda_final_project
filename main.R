@@ -189,4 +189,6 @@ final.sse_test = sum((subset_test$count - subset_test$predictTest)^2)
 final.sst_test = sum((subset_test$count - mean(bike_train$count))^2)
 1 - final.sse_test/final.sst_test
 
+# add all new columns to bike_test so we can run our prediction 
+
 
