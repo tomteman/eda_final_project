@@ -1,7 +1,7 @@
 # installs 
 # install.packages("lubridate", dependencies = TRUE)
 # install.packages("ggplot", dependencies = TRUE)
-#install.packages("plyr", dependencies = TRUE)
+# install.packages("plyr", dependencies = TRUE)
 library(ggplot2)
 library(lubridate)
 library(randomForest)
@@ -57,6 +57,7 @@ bike_test$day_name=wday(as.Date(bike_test$datetime,"%Y-%m-%d%H:%M:%S", tz = "UTC
 bike_test$hour_factored <- as.factor(bike_test$hour)
 
 # boxplot relation between hour and count of rentals
+par(mfrow=c(2,1));
 boxplot(bike_train$count~bike_train$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
 boxplot(bike_train$count~bike_train$day_name,xlab="day", ylab="count of rentals", col=rainbow(length(unique(bike_train$day))),outline=FALSE)
 
@@ -65,9 +66,6 @@ par(mfrow=c(2,1));
 bike_train_filtered = bike_train[bike_train$workingday == 1, ];
 boxplot(main="Relation between hour and count of rentals in workdays", bike_train_filtered$count~bike_train_filtered$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
 
-# boxplot relation between hour and count of rentals in non-workdays
-bike_train_filtered = bike_train[bike_train$workingday == 0, ];
-boxplot(main="Relation between hour and count of rentals in non-workdays", bike_train_filtered$count~bike_train_filtered$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
 
 par(mfrow=c(2,2));
 # boxplot relation between hour and count of rentals in winter
@@ -86,16 +84,24 @@ boxplot(main="Relation between hour and count of rentals in summer", bike_train_
 bike_train_filtered = bike_train[bike_train$season == 4, ];
 boxplot(main="Relation between hour and count of rentals in fall", bike_train_filtered$count~bike_train_filtered$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
 
-# boxplot relation between hour and count of rentals in non-workdays
-boxplot(bike_train$count~bike_train$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
-
 # plot relation between count and date, with points colored according to temp
 pl <- ggplot(bike_train,aes(datetime,count)) + geom_point(aes(color=temp),alpha=0.5)
 pl + ggtitle("Relation between count and date, with points colored according to temperature") + scale_color_continuous(low = '#55D8CE',high = '#FF6E2E') + theme_bw()
 
+
+par(mfrow=c(2,1));
+# boxplot relation between hour and count of rentals in non-workdays
+bike_train_filtered = bike_train[bike_train$workingday == 0, ];
+boxplot(main="Relation between hour and count of rentals in non-workdays", bike_train_filtered$count~bike_train_filtered$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train$hour_factored))),outline=FALSE)
+
+# boxplot relation between hour and count of rentals in workdays
+bike_train_filtered = bike_train[bike_train$workingday == 1, ];
+boxplot(main="Relation between hour and count of rentals in workdays", bike_train_filtered$count~bike_train_filtered$hour_factored,xlab="hour", ylab="count of rentals", col=rainbow(length(unique(bike_train_filtered$hour_factored))),outline=FALSE)
+
 # section 2
 bikes_train_lm <- lm(data = bike_train, count ~ temp)
 summary(bikes_train_lm)
+par(mfrow=c(1,1));
 plot(bike_train$temp, bike_train$count, pch = 20, cex = .5, col = "blue", main = "Count plotted against temperature", xlab = "Temperature", ylab = "Count")
 abline(lm(data = bike_train, count ~ temp))
 
@@ -116,36 +122,36 @@ summary(subset_train_lm_factored)
 # create hour windows in datasets
 bike_train$hour_window<-NA
 bike_train$hour_window<-ifelse(bike_train$hour>=0 & bike_train$hour<=6 | bike_train$hour==23,"night", bike_train$hour_window)
-bike_train$hour_window<-ifelse(bike_train$hour>=7 & bike_train$hour<=9,"morning commute", bike_train$hour_window)
+bike_train$hour_window<-ifelse(bike_train$hour>=7 & bike_train$hour<=9,"morning_commute", bike_train$hour_window)
 bike_train$hour_window<-ifelse(bike_train$hour>=10 & bike_train$hour<=15,"midday", bike_train$hour_window)
-bike_train$hour_window<-ifelse(bike_train$hour>=16 & bike_train$hour<=19,"evening commute", bike_train$hour_window)
-bike_train$hour_window<-ifelse(bike_train$hour>=20 & bike_train$hour<=22,"late evening", bike_train$hour_window)
+bike_train$hour_window<-ifelse(bike_train$hour>=16 & bike_train$hour<=19,"evening_commute", bike_train$hour_window)
+bike_train$hour_window<-ifelse(bike_train$hour>=20 & bike_train$hour<=22,"late_evening", bike_train$hour_window)
 bike_train$hour_window <- as.factor(bike_train$hour_window)
 
 bike_test$hour_window<-NA
 bike_test$hour_window<-ifelse(bike_test$hour>=0 & bike_test$hour<=6 | bike_test$hour==23,"night", bike_test$hour_window)
-bike_test$hour_window<-ifelse(bike_test$hour>=7 & bike_test$hour<=9,"morning commute", bike_test$hour_window)
+bike_test$hour_window<-ifelse(bike_test$hour>=7 & bike_test$hour<=9,"morning_commute", bike_test$hour_window)
 bike_test$hour_window<-ifelse(bike_test$hour>=10 & bike_test$hour<=15,"midday", bike_test$hour_window)
-bike_test$hour_window<-ifelse(bike_test$hour>=16 & bike_test$hour<=19,"evening commute", bike_test$hour_window)
-bike_test$hour_window<-ifelse(bike_test$hour>=20 & bike_test$hour<=22,"late evening", bike_test$hour_window)
+bike_test$hour_window<-ifelse(bike_test$hour>=16 & bike_test$hour<=19,"evening_commute", bike_test$hour_window)
+bike_test$hour_window<-ifelse(bike_test$hour>=20 & bike_test$hour<=22,"late_evening", bike_test$hour_window)
 bike_test$hour_window <- as.factor(bike_test$hour_window)
 
 
 # create hour windows in training
 subset_train$hour_window<-NA
 subset_train$hour_window<-ifelse(subset_train$hour>=0 & subset_train$hour<=6 | subset_train$hour==23,"night", subset_train$hour_window)
-subset_train$hour_window<-ifelse(subset_train$hour>=7 & subset_train$hour<=9,"morning commute", subset_train$hour_window)
+subset_train$hour_window<-ifelse(subset_train$hour>=7 & subset_train$hour<=9,"morning_commute", subset_train$hour_window)
 subset_train$hour_window<-ifelse(subset_train$hour>=10 & subset_train$hour<=15,"midday", subset_train$hour_window)
-subset_train$hour_window<-ifelse(subset_train$hour>=16 & subset_train$hour<=19,"evening commute", subset_train$hour_window)
-subset_train$hour_window<-ifelse(subset_train$hour>=20 & subset_train$hour<=22,"late evening", subset_train$hour_window)
+subset_train$hour_window<-ifelse(subset_train$hour>=16 & subset_train$hour<=19,"evening_commute", subset_train$hour_window)
+subset_train$hour_window<-ifelse(subset_train$hour>=20 & subset_train$hour<=22,"late_evening", subset_train$hour_window)
 subset_train$hour_window <- as.factor(subset_train$hour_window)
 
 # create hour windows in test
 subset_test$hour_window<-NA
 subset_test$hour_window<-ifelse(subset_test$hour>=0 & subset_test$hour<=6 | subset_test$hour==23,"night", subset_test$hour_window)
-subset_test$hour_window<-ifelse(subset_test$hour>=7 & subset_test$hour<=9,"morning commute", subset_test$hour_window)
+subset_test$hour_window<-ifelse(subset_test$hour>=7 & subset_test$hour<=9,"morning_commute", subset_test$hour_window)
 subset_test$hour_window<-ifelse(subset_test$hour>=10 & subset_test$hour<=15,"midday", subset_test$hour_window)
-subset_test$hour_window<-ifelse(subset_test$hour>=16 & subset_test$hour<=19,"evening commute", subset_test$hour_window)
+subset_test$hour_window<-ifelse(subset_test$hour>=16 & subset_test$hour<=19,"evening_commute", subset_test$hour_window)
 subset_test$hour_window<-ifelse(subset_test$hour>=20 & subset_test$hour<=22,"late evening", subset_test$hour_window)
 subset_test$hour_window <- as.factor(subset_test$hour_window)
 
@@ -206,6 +212,7 @@ bike_train.final <- lm(data = bike_train, count ~ holiday_factored*hour_window+w
 summary(bike_train.final)
 
 subset_test$predictTest = predict(bike_train.final, subset_test)
+
 final.sse_test = sum((subset_test$count - subset_test$predictTest)^2)
 final.sst_test = sum((subset_test$count - mean(bike_train$count))^2)
 1 - final.sse_test/final.sst_test
